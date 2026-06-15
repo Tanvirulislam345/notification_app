@@ -1,51 +1,21 @@
-# Local development infrastructure for the Notification System.
-#   - postgres : primary datastore (logs, preferences, templates, DLQ)
-#   - redis    : BullMQ broker + rate-limiter + Socket.IO adapter pub/sub
-#   - mailhog  : local SMTP catcher so email is testable with zero real keys
-#                (SMTP on :1025, web UI on http://localhost:8025)
+version: '3.9'
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: notif_postgres
-    restart: unless-stopped
     environment:
-      POSTGRES_USER: notif
-      POSTGRES_PASSWORD: notif
-      POSTGRES_DB: notifications
+      POSTGRES_USER: auth
+      POSTGRES_PASSWORD: auth
+      POSTGRES_DB: saas_auth
     ports:
-      # Override the host port if 5432 is already in use: POSTGRES_HOST_PORT=5433 docker compose up -d
-      - "${POSTGRES_HOST_PORT:-5432}:5432"
+      - '5433:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U notif -d notifications"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
-  redis:
-    image: redis:7-alpine
-    container_name: notif_redis
-    restart: unless-stopped
-    command: ["redis-server", "--appendonly", "yes"]
-    ports:
-      - "6379:6379"
-    volumes:
-      - redisdata:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
 
   mailhog:
-    image: mailhog/mailhog:latest
-    container_name: notif_mailhog
-    restart: unless-stopped
+    image: mailhog/mailhog
     ports:
-      - "1025:1025" # SMTP
-      - "8025:8025" # Web UI
+      - '1025:1025'
+      - '8025:8025'
 
 volumes:
   pgdata:
-  redisdata:
