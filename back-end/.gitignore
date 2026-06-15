@@ -1,4 +1,17 @@
-node_modules/
+# compiled output
 dist/
+node_modules/
+
+# secrets
 .env
-*.log
+*.env.local
+
+# coverage
+coverage/
+
+# IDE
+.idea/
+.vscode/
+
+# incremental build
+*.tsbuildinfo
